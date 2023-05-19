@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import Swal from 'sweetalert2';
 import Web3 from 'web3';
 import BetContract from './abis/BetContract.json';
 import { normalizeBets } from './utils';
@@ -28,15 +27,10 @@ const App = () => {
             // Check if the browser has injected Web3
             if (window.ethereum) {
                 // Connect to the wallet
-                const web3 = new Web3(window.ethereum);
-                await window.ethereum.enable();
-                setWeb3(web3);
-                loadContract(web3);
-                loadAccounts(web3);
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                // const accounts = await web3.eth.getAccounts();
+                const web3 = new Web3(window.ethereum);
+
                 // Check if the user is registered
-                // const isRegistered = await contract.methods.registeredUsers(accounts[0]).call();
                 const isRegistered = await contract.methods.registeredUsers(accounts[0]).call();
 
                 if (!isRegistered) {
@@ -47,6 +41,10 @@ const App = () => {
 
                 // Update the wallet connection status
                 setIsWalletConnected(true);
+
+                // Store the Web3 instance in state or pass it to other functions
+                // For example:
+                setWeb3(web3);
 
                 // You can also fetch the connected wallet address
                 // For example:
@@ -73,6 +71,27 @@ const App = () => {
     // Function to close create bet modal
     const closeCreateBetModal = () => {
         setIsCreateBetModalOpen(false);
+    };
+
+    useEffect(() => {
+        initializeWeb3();
+    }, []);
+
+    const initializeWeb3 = async () => {
+        if (window.ethereum) {
+            try {
+                // const provider = new Web3.providers.WebsocketProvider('ws://localhost:8545'); // Replace with your provider URL
+                const web3Instance = new Web3(window.ethereum);
+                await window.ethereum.enable();
+                setWeb3(web3Instance);
+                loadContract(web3Instance);
+                loadAccounts(web3Instance);
+            } catch (error) {
+                console.error('Failed to connect to Ethereum provider:', error);
+            }
+        } else {
+            console.error('Please install MetaMask or use a compatible Ethereum browser.');
+        }
     };
 
     const loadContract = async (web3Instance) => {
@@ -133,12 +152,10 @@ const App = () => {
     };
 
     useEffect(() => {
-        connectWallet();
-        if (contract && walletAddress) {
+        // if (contract && walletAddress) {
         console.log('contract', contract);
         loadUserBets();
-        }
-        console.log(selectedChoice);
+        // }
     }, [contract, walletAddress]);
 
     const createBet = async (question, choices) => {
@@ -189,8 +206,8 @@ const App = () => {
     };
 
     return (
-        <div className="container-full container-fluid vw-100 bg-secondary text-light">
-            <div className="container bg-info">
+        <div className="container-full container-fluid vh-100 vw-100 bg-dark text-light">
+            <div className="container">
                 <Navbar
                     isWalletConnected={isWalletConnected}
                     walletAddress={walletAddress}
@@ -223,7 +240,6 @@ const App = () => {
                             bet={bet}
                             selectedBet={selectedBet}
                             handleBetSelection={handleBetSelection}
-                            selectedChoice={selectedChoice}
                             betAmount={betAmount}
                             userBets
                         />
