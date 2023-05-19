@@ -6,12 +6,12 @@ const Navbar = ({ isWalletConnected, walletAddress, connectWallet, openCreateBet
             </a>
             <div className="collapse navbar-collapse justify-content-end">
                 <ul className="navbar-nav">
-                    <li className="nav-item">
+                    <li className="nav-item mr-3">
                         {isWalletConnected ? (
                             <span className="nav-link text-light">{walletAddress}</span>
                         ) : (
                             <button
-                                className="btn btn-light btn-dark-mode text-dark nav-link"
+                                className="btn btn-light btn-dark-mode text-dark nav-linkd"
                                 onClick={connectWallet}
                             >
                                 Connect Wallet
@@ -20,7 +20,7 @@ const Navbar = ({ isWalletConnected, walletAddress, connectWallet, openCreateBet
                     </li>
                     <li className="nav-item">
                         <button
-                            className="btn btn-light ml-3 btn-dark-mode"
+                            className="btn btn-outline-light ml-3 btn-dark-mode"
                             onClick={openCreateBetModal}
                         >
                             Create Bet
