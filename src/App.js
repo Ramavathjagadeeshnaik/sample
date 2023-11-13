@@ -18,6 +18,7 @@ const App = () => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState(null);
   const [userBets, setUserBets] = useState([]);
+  const [provider,setProvider]=useState(null)
 
   // State for create bet modal
   const [isCreateBetModalOpen, setIsCreateBetModalOpen] = useState(false);
@@ -25,55 +26,50 @@ const App = () => {
   // Function to handle wallet connection
   const connectWallet = async () => {
     try {
-      // Check if the browser has injected Web3
       if (window.ethereum) {
-        // Connect to the wallet
-        const web3 = new Web3(window.ethereum);
-        await window.ethereum.enable();
-        setWeb3(web3);
-        loadContract(web3);
-        loadAccounts(web3);
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        // const accounts = await web3.eth.getAccounts();
-        // Check if the user is registered
-        // const isRegistered = await contract.methods.registeredUsers(accounts[0]).call();
-        const isRegistered = await contract.methods
-          .registeredUsers(accounts[0])
-          .call();
-
+        console.log("hiii hello")
+        const ethereumProvider = window.ethereum;
+        await ethereumProvider.request({ method: 'eth_requestAccounts' });
+  
+        // Set the provider directly
+        setProvider(ethereumProvider);
+  
+        // Load contract and accounts with the Ethereum provider
+        loadContract(ethereumProvider);
+        loadAccounts(ethereumProvider);
+  
+        const accounts = await ethereumProvider.request({ method: 'eth_requestAccounts' });
+  
+        const isRegistered = await contract.methods.registeredUsers(accounts[0]).call();
+  
         if (!isRegistered) {
           // Register the user
           await contract.methods.registerUser().send({ from: accounts[0] });
           alert("User registered successfully!");
         }
-
-        // Update the wallet connection status
+  
+        // Update wallet connection status and address
         setIsWalletConnected(true);
-
-        // You can also fetch the connected wallet address
-        // For example:
-        const address = accounts[0];
-        setWalletAddress(address);
-
+        setWalletAddress(accounts[0]);
+  
         // Additional logic or actions after connecting the wallet
         // ...
       } else {
-        // Handle the case when Web3 is not available
-        console.log("Web3 not found. Please install a wallet like MetaMask.");
+        console.log("Ethereum provider not found. Please install a compatible wallet.");
       }
     } catch (error) {
-      // Handle any errors that occurred during wallet connection
       console.error("Failed to connect to the wallet:", error);
     }
+ 
   };
+  
 
-  // Function to open create bet modal
+  // Function to open create bet modal0
   const openCreateBetModal = () => {
     setIsCreateBetModalOpen(true);
   };
 
+  
   // Function to close create bet modal
   const closeCreateBetModal = () => {
     setIsCreateBetModalOpen(false);
